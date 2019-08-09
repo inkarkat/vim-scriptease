@@ -185,8 +185,8 @@ function! scriptease#dump(object, ...) abort
 endfunction
 
 function! s:backslashdump(value, indent) abort
-    let out = scriptease#dump(a:value, {'level': 0, 'width': &textwidth - &shiftwidth * 3 - a:indent})
-    return s:gsub(out, '\n', "\n".repeat(' ', a:indent + &shiftwidth * 3).'\\')
+    let out = scriptease#dump(a:value, {'level': 0, 'width': &textwidth - a:indent})
+    return s:gsub(out, '\n', "\n".repeat(' ', a:indent).'\\')
 endfunction
 
 function! scriptease#pp_command(bang, lnum, value) abort
