@@ -151,7 +151,8 @@ function! scriptease#dump(object, ...) abort
     let dump = '['.join(map(copy(a:object), 'scriptease#dump(v:val, {"seen": childopt.seen, "level": childopt.level})'), ', ').']'
     if opt.width && opt.level + len(s:gsub(dump, '.', '.')) > opt.width
       let space = repeat(' ', opt.level)
-      let dump = "[".join(map(copy(a:object), 'scriptease#dump(v:val, childopt)'), ",\n ".space).']'
+      let [nlsp, nl] = (&verbose > 0 ? ["\n ".space, "\n".space] : ['', ''])
+      let dump = "[".nlsp.join(map(copy(a:object), 'scriptease#dump(v:val, childopt)'), ",\n ".space).nl.']'
     endif
   elseif type(a:object) ==# type({})
     let childopt.seen += [a:object]
@@ -174,7 +175,8 @@ function! scriptease#dump(object, ...) abort
           call extend(lines, [prefix . ' ' . suffix])
         endif
       endfor
-      let dump = s:sub("{".join(lines, "\n " . space), ',$', '}')
+      let [nlsp, nl] = (&verbose > 0 ? ["\n ".space, "\n".space] : ['', ''])
+      let dump = s:sub("{".nlsp.join(lines, "\n " . space), ',$', nl.'}')
     endif
   elseif type(a:object) ==# type(function('tr'))
     let dump = s:sub(s:sub(string(a:object), '^function\(''(\d+)''', 'function(''{\1}'''), ',.*\)$', ')')
