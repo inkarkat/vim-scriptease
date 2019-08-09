@@ -151,7 +151,8 @@ function! scriptease#dump(object, ...) abort
     let dump = '['.join(map(copy(a:object), 'scriptease#dump(v:val, {"seen": childopt.seen, "level": childopt.level})'), ', ').']'
     if opt.width && opt.level + len(s:gsub(dump, '.', '.')) > opt.width
       let space = repeat(' ', opt.level)
-      let dump = "[".join(map(copy(a:object), 'scriptease#dump(v:val, childopt)'), ",\n ".space).']'
+      let [nlsp, nl] = (&verbose > 0 ? ["\n ".space, "\n".space] : ['', ''])
+      let dump = "[".nlsp.join(map(copy(a:object), 'scriptease#dump(v:val, childopt)'), ",\n ".space).nl.']'
     endif
   elseif type(a:object) ==# type({})
     let childopt.seen += [a:object]
@@ -174,7 +175,8 @@ function! scriptease#dump(object, ...) abort
           call extend(lines, [prefix . ' ' . suffix])
         endif
       endfor
-      let dump = s:sub("{".join(lines, "\n " . space), ',$', '}')
+      let [nlsp, nl] = (&verbose > 0 ? ["\n ".space, "\n".space] : ['', ''])
+      let dump = s:sub("{".nlsp.join(lines, "\n " . space), ',$', nl.'}')
     endif
   elseif type(a:object) ==# type(function('tr'))
     let dump = s:sub(s:sub(string(a:object), '^function\(''(\d+)''', 'function(''{\1}'''), ',.*\)$', ')')
@@ -185,8 +187,8 @@ function! scriptease#dump(object, ...) abort
 endfunction
 
 function! s:backslashdump(value, indent) abort
-    let out = scriptease#dump(a:value, {'level': 0, 'width': &textwidth - &shiftwidth * 3 - a:indent})
-    return s:gsub(out, '\n', "\n".repeat(' ', a:indent + &shiftwidth * 3).'\\')
+    let out = scriptease#dump(a:value, {'level': 0, 'width': &textwidth - a:indent})
+    return s:gsub(out, '\n', "\n".repeat(' ', a:indent).'\\')
 endfunction
 
 function! scriptease#pp_command(bang, lnum, value) abort
@@ -195,14 +197,13 @@ function! scriptease#pp_command(bang, lnum, value) abort
   elseif a:lnum == -1
     echo scriptease#dump(a:value, {'width': a:bang ? 0 : &columns-1})
   else
-    exe a:lnum
-    let indent = indent(prevnonblank('.'))
+    let indent = indent(prevnonblank(a:lnum))
     if a:bang
       let out = scriptease#dump(a:value)
     else
       let out = s:backslashdump(a:value, indent)
     endif
-    put =repeat(' ', indent).'PP '.out
+    exe a:lnum."put =repeat(' ', indent).out"
     '[
   endif
 endfunction
