@@ -195,14 +195,13 @@ function! scriptease#pp_command(bang, lnum, value) abort
   elseif a:lnum == -1
     echo scriptease#dump(a:value, {'width': a:bang ? 0 : &columns-1})
   else
-    exe a:lnum
-    let indent = indent(prevnonblank('.'))
+    let indent = indent(prevnonblank(a:lnum))
     if a:bang
       let out = scriptease#dump(a:value)
     else
       let out = s:backslashdump(a:value, indent)
     endif
-    put =repeat(' ', indent).out
+    exe a:lnum."put =repeat(' ', indent).out"
     '[
   endif
 endfunction
