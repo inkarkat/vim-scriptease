@@ -202,7 +202,7 @@ function! scriptease#pp_command(bang, lnum, value) abort
     else
       let out = s:backslashdump(a:value, indent)
     endif
-    put =repeat(' ', indent).'PP '.out
+    put =repeat(' ', indent).out
     '[
   endif
 endfunction
